@@ -16,4 +16,6 @@ function onRequest(req, body, res) {
     let urlNoParams = req.url.indexOf('?') >= 0 ? req.url.substring(0, req.url.indexOf('?')) : req.url;
 
     Routes[urlNoParams]?.exec(req.method, req, body, res);
+
+    //look at express router files
 }
