@@ -1,5 +1,5 @@
 const express = require('express');
-const bindRouters = require('./routes/_routers');
+const bindRouters = require('./controller/routes/_routers');
 
 const PORT = 3000;
 
