@@ -4,13 +4,13 @@ const routers =
     // index 0 is the router's base route and 
     // index 1 is the file name of the router
     [
-        '/ticket',
-        'tickets'
+        '/employee',
+        'employee'
     ], 
     [
-        '/login',
-        'login'
-    ], 
+        '/ticket',
+        'tickets'
+    ]
 ];
 
 function bindRouters(server)

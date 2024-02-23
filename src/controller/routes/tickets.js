@@ -5,8 +5,9 @@ const ticketService = require('../../service/TicketService');
 
 const router = express.Router();
 
-// /ticket
+// router.get('/', [func1, func2, func3, ...., funcX], async (req, res) ...... // Can chain middlewares like this
 
+// /ticket
 router.get('/', async (req, res) => {
     let resData = {};
 
