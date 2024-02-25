@@ -5,7 +5,7 @@ class EmployeeService extends Service {
 // CREATE
 
 // READ
-    getUserByUsername = async () => await employeeDao.getUserByUsername();
+    getUserByUsername = async (username) => await employeeDao.getUserByUsername(username);
 // UPDATE
 
 

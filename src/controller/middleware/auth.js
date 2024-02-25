@@ -22,9 +22,9 @@ const SECRET_KEY = 'your-secret-key';
 async function authLogin(req, res)
 {
     const { username, password } = req.body;
-
-    const user = employeeService.getUserByUsername(username);
-
+    
+    const user = await employeeService.getUserByUsername(username);
+    
     // bcrypt.compare takes plaintext as first param and hashed as second param
     if(!user || !(await bcrypt.compare(password, user.password))) {
         res.status(401).json('Invalid credentials');
@@ -44,7 +44,7 @@ async function authLogin(req, res)
         //generate JWT
         const token = jwt.sign(payload, SECRET_KEY, signOptions);
 
-        res.json({ token });
+        res.json({ message: `Signed in as ${username}`, token });
     }
 }
 

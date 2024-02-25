@@ -18,7 +18,8 @@ class EmployeeDao extends Dao {
             ExpressionAttributeValues: {':username': username}
         });
         
-        return await this.trySendCommandItems(command);
+        let userArr = await this.trySendCommandItems(command);
+        return userArr[0];
     }
 
 // UPDATE
