@@ -20,8 +20,7 @@ class Dao {
             const data = await this.documentClient.send(command);
             return data;
         } catch (error) {
-            //logger.error(error);
-            console.error(error);
+            logger.error(error);
             return null;
         }
     }

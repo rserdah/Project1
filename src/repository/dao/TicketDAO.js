@@ -11,8 +11,6 @@ class TicketDao extends Dao {
     async createTicket(ticket) {
         const newTicket = new Ticket({ amount: ticket.amount, author: ticket.author, description: ticket.description, type: ticket.type });
 
-        //console.log(JSON.stringify(newTicket));
-
         const command = new PutCommand({
             TableName: this.tableName,
             Item: newTicket
