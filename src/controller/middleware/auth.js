@@ -1,26 +1,38 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const employeeService = require('../../service/EmployeeService');
+const Employee = require('../../repository/class/Employee');
 
 const SALT_ROUNDS = 10;
 const SECRET_KEY = 'your-secret-key';
 
 
-//Finish fixing this function
-/*async function register(req, res) {
-    let { username, password, role } = req.body;
+async function register(req, res) {
+    const { username, password } = req.body;
 
-    const saltRounds = 10;
-    password = await bcrypt.hash(password, saltRounds);
+    // If the username is empty/undefined OR an existing user exists by the same, respond with error
+    if(!username || await employeeService.getUserByUsername(username)) {
+        res.status(409).json('Username taken');
+        return;
+    }
+    else if(!password) {
+        res.status(400).json('Missing password');
+        return;
+    }
 
-    const newUser = {id: users.length + 1, username, password, role};
-    users.push(newUser);
+    // Default role to employee if missing
+    req.body.role ||= 'employee';
+
+    req.body.password = await bcrypt.hash(password, SALT_ROUNDS);
+
+    const newUser = new Employee({ username: req.body.username, password: req.body.password, role: req.body.role });
+
+    await employeeService.createEmployee(newUser);
 
     res.status(201).json({ message: 'User created', newUser });
-}*/
+}
 
-async function authLogin(req, res)
-{
+async function authLogin(req, res) {
     const { username, password } = req.body;
     
     const user = await employeeService.getUserByUsername(username);
@@ -77,18 +89,19 @@ function authRole(req, res, next, predicate) {
 
 function authEmployee(req, res, next) {
     authRole(req, res, next, role => 
-        role === 'employee'
+        role === 'employee' || role === 'financeManager'
     );
 }
 
 function authFinanceManager(req, res, next)
 {
     authRole(req, res, next, role => 
-        role === 'employee' || role === 'financeManager'
+        role === 'financeManager'
     );
 }
 
 module.exports = {
+    register,
     authLogin,
     authEmployee,
     authFinanceManager

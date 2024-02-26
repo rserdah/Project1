@@ -53,7 +53,17 @@ class TicketDao extends Dao {
     
         return await this.trySendCommandItems(command);
     }
-
+    
+    async getPendingTicketsByAuthorId(author) {
+        const command = new ScanCommand({
+            TableName: this.tableName,
+            FilterExpression: "#author = :author AND #status = :status",
+            ExpressionAttributeNames: {"#author": "author", "#status": "status"},
+            ExpressionAttributeValues: {':author': author, ':status': 'pending'}
+        });
+    
+        return await this.trySendCommandItems(command);
+    }
 // UPDATE
 
 

@@ -26,10 +26,30 @@ router.get('/', async (req, res) => {
     res.json(resData);
 });
 
-router.put('/', async (req, res) => {
-    let resData = await ticketService.createTicket(req.body);
+router.get('/history', async (req, res) => {
+    let resData = {};
     
-    res.status(resData.$metadata.httpStatusCode).json(resData);
+    if(req.query.author) {
+        resData = await ticketService.getTicketsByAuthorId(req.query.author);
+        res.status(200).send(resData);
+    }
+    else {
+        res.status(400).send('Must include author id param');
+    }
+});
+
+router.put('/', async (req, res) => {
+    if(!req.body.author)
+        res.status(400).json('Missing author author');
+    else if(!req.body.amount)
+        res.status(400).json('Missing amount');
+    else if(!req.body.description)
+        res.status(400).json('Missing description');
+    else {
+        let resData = await ticketService.createTicket(req.body);
+        
+        res.status(resData.$metadata.httpStatusCode).json(resData);
+    }
 });
 
 module.exports = router;

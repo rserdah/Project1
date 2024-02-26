@@ -1,7 +1,8 @@
 {
   "scripts": {
+    "testRun": "npm run test && npm run start",
     "start": "node ./src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --watch-all --coverage"
   },
   "devDependencies": {
     "jest": "^29.7.0"

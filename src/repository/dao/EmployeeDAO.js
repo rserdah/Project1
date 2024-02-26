@@ -8,6 +8,14 @@ class EmployeeDao extends Dao {
     }
 
 // CREATE
+    async createEmployee(employee) {
+        const command = new PutCommand({
+            TableName: this.tableName,
+            Item: employee
+        });
+
+        return await this.trySendCommand(command);
+    }
 
 // READ
     async getUserByUsername(username) {
