@@ -3,10 +3,14 @@ const employeeDao = require('../repository/dao/EmployeeDAO');
 
 class EmployeeService extends Service {
 // CREATE
-    createEmployee = async (employee) => await employeeDao.createEmployee(employee);
+    async createEmployee(employee) {
+        return await employeeDao.createEmployee(employee);
+    }
 
 // READ
-    getUserByUsername = async (username) => await employeeDao.getUserByUsername(username);
+    async getUserByUsername(username) {
+        return await employeeDao.getUserByUsername(username);
+    }
 // UPDATE
 
 

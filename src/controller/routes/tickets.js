@@ -12,16 +12,17 @@ router.get('/', async (req, res) => {
     let resData = {};
 
     // .../ticket?id=xxxx
-    if(req.query.id)
+    if(req.query.id) {
         resData = await ticketService.getTicketById(req.query.id);
-
+    }
     // .../ticket?author=xxxx
-    else if(req.query.author)
+    else if(req.query.author) {
         resData = await ticketService.getTicketsByAuthorId(req.query.author);
-
+    }
     // .../ticket
-    else
+    else {
         resData = await ticketService.getAllTickets();
+    }
 
     res.json(resData);
 });
