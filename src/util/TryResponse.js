@@ -1,6 +1,5 @@
 const tryRes = async (res, tryCallback) => {
     try {
-        //await tryCallback(req, res);
         await tryCallback();
     }
     catch(e) {

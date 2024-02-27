@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const tryRes = require('../../util/TryResponse');
 const { authFinanceManager } = require('../../../src/controller/middleware/auth');
+const logger = require('../../util/Logger');
 
 const ticketService = require('../../service/TicketService');
 
@@ -50,7 +51,7 @@ router.get('/queue', authFinanceManager, async (req, res) => {
 router.post('/', async (req, res) => {
     await tryRes(res, async () => {
         let resData = await ticketService.createTicket(req.body);
-        res.status(resData.$metadata.httpStatusCode).json(resData);
+        res.status(201).json(resData);
     });
 });
 

@@ -2,41 +2,25 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const employeeService = require('../../service/EmployeeService');
 const Employee = require('../../repository/class/Employee');
+const tryRes = require('../../util/TryResponse');
 const logger = require('../../util/Logger');
-
-const SALT_ROUNDS = 10;
-const SECRET_KEY = 'your-secret-key';
+const { SALT_ROUNDS, SECRET_KEY } = require('../../repository/secrets');
 
 
 async function register(req, res) {
-    const { username, password } = req.body;
+    await tryRes(res, async () => {
+        const newUser = new Employee({ username: req.body.username, password: req.body.password, role: req.body.role });
 
-    // If the username is empty/undefined OR an existing user exists by the same, respond with error
-    if(!username || await employeeService.getUserByUsername(username)) {
-        res.status(409).json('Username taken');
-        return;
-    }
-    else if(!password) {
-        res.status(400).json('Missing password');
-        return;
-    }
+        await employeeService.createEmployee(newUser);
 
-    // Default role to employee if missing
-    req.body.role ||= 'employee';
-
-    req.body.password = await bcrypt.hash(password, SALT_ROUNDS);
-
-    const newUser = new Employee({ username: req.body.username, password: req.body.password, role: req.body.role });
-
-    await employeeService.createEmployee(newUser);
-
-    res.status(201).json({ message: 'User created', newUser });
+        res.status(201).json({ message: 'User created', newUser });
+    });
 }
 
 async function authLogin(req, res) {
     const { username, password } = req.body;
     
-    const user = await employeeService.getUserByUsername(username);
+    const user = await employeeService.getEmployeeByUsername(username);
     
     // bcrypt.compare takes plaintext as first param and hashed as second param
     if(!user || !(await bcrypt.compare(password, user.password))) {
@@ -49,9 +33,9 @@ async function authLogin(req, res) {
             role: user.role
         };
 
-        // Make sure token is created before the presentation and has enough lifetime to last for the duration of the presentation
+        // Make sure token created for the presentation has enough lifetime to last for the duration of the presentation
         let signOptions = {
-            expiresIn: '15m'
+            expiresIn: '25m'
         };
 
         //generate JWT
@@ -79,7 +63,7 @@ function authRole(req, res, next, predicate) {
     jwt.verify(token, SECRET_KEY, (err, user) => {
         if(err || !user.role || !predicate(user.role)) {
             logger.info('403 Forbidden access');
-            res.status(403).json({ message: 'Forbidden access' });
+            res.status(403).json({ message: `Forbidden access for ${user.role} users` });
             return;
         }
         else {

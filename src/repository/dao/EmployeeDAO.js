@@ -18,7 +18,7 @@ class EmployeeDao extends Dao {
     }
 
 // READ
-    async getUserByUsername(username) {
+    async getEmployeeByUsername(username) {
         const command = new ScanCommand({
             TableName: this.tableName,
             FilterExpression: "#username = :username",
