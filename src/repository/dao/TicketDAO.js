@@ -1,5 +1,6 @@
 const Dao = require('./DAO');
 const Ticket = require('../class/Ticket');
+const logger = require('../../util/Logger');
 const { QueryCommand, ScanCommand, GetCommand, PutCommand, UpdateCommand, DeleteCommand } = require("@aws-sdk/lib-dynamodb"); //DocumentClient API allows for simpler syntax, so if this doesn't work try that
 
 class TicketDao extends Dao {
@@ -14,7 +15,6 @@ class TicketDao extends Dao {
         const command = new PutCommand({
             TableName: this.tableName,
             Item: newTicket
-            //Item: { amount: "0", author: "0", description: "", type: "" }
         });
 
         // Doesn't return the items because PutCommand's return doesn't include the items, it just includes the request result
@@ -52,18 +52,29 @@ class TicketDao extends Dao {
         return await this.trySendCommandItems(command);
     }
     
-    async getPendingTicketsByAuthorId(author) {
+    async getPendingTickets(author) {
         const command = new ScanCommand({
             TableName: this.tableName,
-            FilterExpression: "#author = :author AND #status = :status",
-            ExpressionAttributeNames: {"#author": "author", "#status": "status"},
-            ExpressionAttributeValues: {':author': author, ':status': 'pending'}
+            FilterExpression: "#status = :status",
+            ExpressionAttributeNames: {"#status": "status"},
+            ExpressionAttributeValues: {':status': 'pending'}
         });
     
         return await this.trySendCommandItems(command);
     }
 // UPDATE
+    async setTicketStatus(ticketId, newStatus) {
+        const command = new UpdateCommand({
+            TableName: this.tableName,
+            Key: { "ticketId": ticketId },
+            UpdateExpression: "set #status = :newStatus",
+            ExpressionAttributeNames: {"#status": "status"},
+            ExpressionAttributeValues: {":newStatus": newStatus},
+            ReturnValues: "ALL_NEW",
+          });
 
+        return await this.trySendCommand(command);
+    }
 
 // DELETE
 

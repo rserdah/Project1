@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const employeeService = require('../../service/EmployeeService');
 const Employee = require('../../repository/class/Employee');
+const logger = require('../../util/Logger');
 
 const SALT_ROUNDS = 10;
 const SECRET_KEY = 'your-secret-key';
@@ -69,22 +70,23 @@ function authRole(req, res, next, predicate) {
     // Authentication header format convention: 'Bearer <token>'; This split returns the token value
     const token = authHeader && authHeader.split(' ')[1];
 
-    if(!token)
-    {
+    if(!token) {
+        logger.info('401 Unauthorized access');
         res.status(401).json({ message: 'Unauthorized access' });
         return;
     }
     
     jwt.verify(token, SECRET_KEY, (err, user) => {
         if(err || !user.role || !predicate(user.role)) {
+            logger.info('403 Forbidden access');
             res.status(403).json({ message: 'Forbidden access' });
             return;
         }
-
-        req.user = user;
+        else {
+            req.user = user;
+            next();
+        }
     });
-
-    next();
 }
 
 function authEmployee(req, res, next) {
@@ -93,7 +95,7 @@ function authEmployee(req, res, next) {
     );
 }
 
-function authFinanceManager(req, res, next)
+async function authFinanceManager(req, res, next)
 {
     authRole(req, res, next, role => 
         role === 'financeManager'

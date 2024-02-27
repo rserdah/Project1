@@ -1,5 +1,6 @@
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 const { DynamoDBDocumentClient, QueryCommand, ScanCommand, GetCommand, PutCommand, UpdateCommand, DeleteCommand } = require("@aws-sdk/lib-dynamodb");
+const logger = require('../../util/Logger');
 
 class Dao {
     static TableNamespace = 'Project1';

@@ -1,5 +1,7 @@
 const express = require('express');
 const path = require('path');
+const tryRes = require('../../util/TryResponse');
+const { authFinanceManager } = require('../../../src/controller/middleware/auth');
 
 const ticketService = require('../../service/TicketService');
 
@@ -11,15 +13,19 @@ const router = express.Router();
 router.get('/', async (req, res) => {
     let resData = {};
 
-    // .../ticket?id=xxxx
+// .../ticket?id=xxxx
     if(req.query.id) {
-        resData = await ticketService.getTicketById(req.query.id);
+        await tryRes(res, async () => {
+            resData = await ticketService.getTicketById(req.query.id);
+        });
     }
-    // .../ticket?author=xxxx
+
+// .../ticket?author=xxxx
     else if(req.query.author) {
         resData = await ticketService.getTicketsByAuthorId(req.query.author);
     }
-    // .../ticket
+    
+// .../ticket
     else {
         resData = await ticketService.getAllTickets();
     }
@@ -30,27 +36,29 @@ router.get('/', async (req, res) => {
 router.get('/history', async (req, res) => {
     let resData = {};
     
-    if(req.query.author) {
+    await tryRes(res, async () => {
         resData = await ticketService.getTicketsByAuthorId(req.query.author);
         res.status(200).send(resData);
-    }
-    else {
-        res.status(400).send('Must include author id param');
-    }
+    });
 });
 
-router.put('/', async (req, res) => {
-    if(!req.body.author)
-        res.status(400).json('Missing author author');
-    else if(!req.body.amount)
-        res.status(400).json('Missing amount');
-    else if(!req.body.description)
-        res.status(400).json('Missing description');
-    else {
+router.get('/queue', authFinanceManager, async (req, res) => {
+    let resData = await ticketService.getPendingTickets();
+    res.send(resData);
+});
+
+router.post('/', async (req, res) => {
+    await tryRes(res, async () => {
         let resData = await ticketService.createTicket(req.body);
-        
         res.status(resData.$metadata.httpStatusCode).json(resData);
-    }
+    });
+});
+
+router.put('/processing', authFinanceManager, async (req, res) => {
+    await tryRes(res, async () => {
+        let resData = await ticketService.setTicketStatus(req.query.id, req.body.status);
+        res.json(resData);
+    });
 });
 
 module.exports = router;
