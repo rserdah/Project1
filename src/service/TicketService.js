@@ -11,9 +11,9 @@ class TicketService extends Service {
             throw new Error('400 Ticket must not be null/undefined.');
         }
 
-        if(!ticket.amount || ticket.amount <= 0) {
-            logger.error('400 Ticket amount cannot be negative or zero.');
-            throw new Error('400 Ticket amount cannot be negative or zero.');
+        if(!Number(ticket.amount) || (ticket.amount <= 0)) {
+            logger.error('400 Ticket amount cannot be negative, zero, or NaN.');
+            throw new Error('400 Ticket amount cannot be negative, zero, or NaN.');
         }
 
         if(!ticket.description) {
@@ -74,9 +74,31 @@ class TicketService extends Service {
         }
 
         newStatus = newStatus.toLowerCase();
-        if(!(newStatus == 'pending' || newStatus == 'approved' || newStatus == 'denied')) {
+
+        if(newStatus == 'pending') {
+            logger.error('400 Ticket status cannot be changed to pending.');
+            throw new Error('400 Ticket status cannot be changed to pending.');
+        }
+
+        if(!(newStatus == 'approved' || newStatus == 'denied')) {
             logger.error('400 Must have a valid status.');
             throw new Error('400 Must have a valid status.');
+        }
+
+        let ticketArr = await this.getTicketById(ticketId);
+
+        if(!ticketArr || ticketArr.length == 0) {
+            logger.error('404 Ticket not found.');
+            throw new Error('404 Ticket not found.');
+        }
+
+        let ticket = ticketArr[0];
+
+        console.log(JSON.stringify(ticket));
+
+        if(ticket.status != 'pending') {
+            logger.error('400 Processed tickets cannot be changed.');
+            throw new Error('400 Processed tickets cannot be changed.');
         }
 
         logger.info(`200 Set ticket ${ticketId} status to ${newStatus}`);

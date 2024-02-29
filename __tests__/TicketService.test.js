@@ -10,8 +10,7 @@ describe("TicketService.createTicket should return HTTP code ", () => {
         await ticketService.createTicket(new Ticket({
             amount: '',
             author: '1',
-            description: 'description',
-            type: 'type'
+            description: 'description'
         }));
     };
 
@@ -19,8 +18,15 @@ describe("TicketService.createTicket should return HTTP code ", () => {
         await ticketService.createTicket(new Ticket({
             amount: '-1',
             author: '1',
-            description: 'description',
-            type: 'type'
+            description: 'description'
+        }));
+    };
+
+    const createTicket_NaNAmount = async () => {
+        await ticketService.createTicket(new Ticket({
+            amount: 'nonIntParseableString',
+            author: '1',
+            description: 'description'
         }));
     };
 
@@ -28,8 +34,7 @@ describe("TicketService.createTicket should return HTTP code ", () => {
         await ticketService.createTicket(new Ticket({
             amount: '1',
             author: '1',
-            description: '',
-            type: 'type'
+            description: ''
         }));
     };
 
@@ -37,8 +42,7 @@ describe("TicketService.createTicket should return HTTP code ", () => {
         await ticketService.createTicket(new Ticket({
             amount: '1',
             author: '',
-            description: 'description',
-            type: 'type'
+            description: 'description'
         }));
     };
 
@@ -55,6 +59,10 @@ describe("TicketService.createTicket should return HTTP code ", () => {
 
     test('400 when ticket amount is negative', async () => {
         await expect(createTicket_NegativeAmount).rejects.toThrow('400');
+    });
+
+    test('400 when ticket amount is NaN', async () => {
+        await expect(createTicket_NaNAmount).rejects.toThrow('400');
     });
 
     test('400 when ticket description is null/undefined', async () => {
@@ -111,7 +119,7 @@ describe("TicketService.setTicketStatus should return HTTP code ", () => {
         await expect(setTicketStatus_NullStatus).rejects.toThrow('400');
     });    
 
-    test('400 when status is invalid (is not \'pending\', \'approved\', or \'denied\')', async () => {
+    test('400 when status is invalid (is not \'approved\', \'denied\')', async () => {
         await expect(setTicketStatus_InvalidStatus).rejects.toThrow('400');
     });
 });
