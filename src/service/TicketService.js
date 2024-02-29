@@ -6,6 +6,11 @@ const logger = require('../util/Logger');
 class TicketService extends Service {
 // CREATE
     async createTicket(ticket) {
+        if(!ticket) {
+            logger.error('400 Ticket must not be null/undefined.');
+            throw new Error('400 Ticket must not be null/undefined.');
+        }
+
         if(!ticket.amount || ticket.amount <= 0) {
             logger.error('400 Ticket amount cannot be negative or zero.');
             throw new Error('400 Ticket amount cannot be negative or zero.');
@@ -66,6 +71,12 @@ class TicketService extends Service {
         if(!newStatus) {
             logger.error('400 Must have a status.');
             throw new Error('400 Must have a status.');
+        }
+
+        newStatus = newStatus.toLowerCase();
+        if(!(newStatus == 'pending' || newStatus == 'approved' || newStatus == 'denied')) {
+            logger.error('400 Must have a valid status.');
+            throw new Error('400 Must have a valid status.');
         }
 
         logger.info(`200 Set ticket ${ticketId} status to ${newStatus}`);

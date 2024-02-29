@@ -7,6 +7,11 @@ const bcrypt = require('bcrypt');
 class EmployeeService extends Service {
 // CREATE
     async createEmployee(employee) {
+        if(!employee) {
+            logger.error('400 Employee must not be null/undefined.');
+            throw new Error('400 Employee must not be null/undefined.');
+        }
+
         if(!employee.username) {
             logger.error('400 Employee must have a username.');
             throw new Error('400 Employee must have a username.');
@@ -25,6 +30,7 @@ class EmployeeService extends Service {
         }
 
         // If password is undefined or is empty after trimming it
+        
         if(!employee.password || !employee.password.trim()) {
             logger.error('400 Employee must have a password.');
             throw new Error('400 Employee must have a password.');
