@@ -10,7 +10,7 @@ class TicketDao extends Dao {
 
 // CREATE
     async createTicket(ticket) {
-        const newTicket = new Ticket({ amount: ticket.amount, author: ticket.author, description: ticket.description });
+        const newTicket = new Ticket({ amount: ticket.amount, author: ticket.author, description: ticket.description, queueIndex: ticket.queueIndex });
 
         const command = new PutCommand({
             TableName: this.tableName,
