@@ -1,7 +1,6 @@
 const Service = require('./Service');
 const ticketDao = require('../repository/dao/TicketDAO');
 const logger = require('../util/Logger');
-const Ticket = require('../repository/class/Ticket');
 
 
 class TicketService extends Service {
@@ -15,11 +14,6 @@ class TicketService extends Service {
 
             logger.info('Set ticket queue');
         }
-    }
-
-    async popTicketFromQueue() {
-        // Since index 0 is treated as first in this ticket system, can't use Array.pop()
-        TicketService.TicketQueue = TicketService.TicketQueue.slice(1);
     }
 
 // CREATE
@@ -131,9 +125,6 @@ class TicketService extends Service {
 
         return result;
     }
-
-// DELETE
-
 }
 
 module.exports = new TicketService();

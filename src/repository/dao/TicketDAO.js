@@ -1,7 +1,6 @@
 const Dao = require('./DAO');
 const Ticket = require('../class/Ticket');
-const logger = require('../../util/Logger');
-const { QueryCommand, ScanCommand, GetCommand, PutCommand, UpdateCommand, DeleteCommand } = require("@aws-sdk/lib-dynamodb"); //DocumentClient API allows for simpler syntax, so if this doesn't work try that
+const { ScanCommand, PutCommand, UpdateCommand } = require("@aws-sdk/lib-dynamodb"); //DocumentClient API allows for simpler syntax, so if this doesn't work try that
 
 class TicketDao extends Dao {
     constructor() {
@@ -17,9 +16,6 @@ class TicketDao extends Dao {
             Item: newTicket
         });
 
-        // Doesn't return the items because PutCommand's return doesn't include the items, it just includes the request result
-        // return await this.trySendCommand(command);
-        
         await this.trySendCommand(command);
         
         return newTicket;
@@ -68,15 +64,6 @@ class TicketDao extends Dao {
     }
 // UPDATE
     async setTicketStatus(ticketId, newStatus, resolverEmployeeId) {
-        // const command = new UpdateCommand({
-        //     TableName: this.tableName,
-        //     Key: { "ticketId": ticketId },
-        //     UpdateExpression: "set #status = :newStatus",
-        //     ExpressionAttributeNames: {"#status": "status"},
-        //     ExpressionAttributeValues: {":newStatus": newStatus},
-        //     ReturnValues: "ALL_NEW",
-        // });
-
         const command = new UpdateCommand({
             TableName: this.tableName,
             Key: { "ticketId": ticketId },

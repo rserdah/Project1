@@ -1,6 +1,6 @@
 const Dao = require('./DAO');
 const Employee = require('../class/Employee');
-const { QueryCommand, ScanCommand, GetCommand, PutCommand, UpdateCommand, DeleteCommand } = require("@aws-sdk/lib-dynamodb"); //DocumentClient API allows for simpler syntax, so if this doesn't work try that
+const { ScanCommand, PutCommand } = require("@aws-sdk/lib-dynamodb"); //DocumentClient API allows for simpler syntax, so if this doesn't work try that
 
 class EmployeeDao extends Dao {
     constructor() {
@@ -29,12 +29,6 @@ class EmployeeDao extends Dao {
         let userArr = await this.trySendCommandItems(command);
         return userArr[0];
     }
-
-// UPDATE
-
-
-// DELETE
-
 }
 
 module.exports = new EmployeeDao();

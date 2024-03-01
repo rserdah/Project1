@@ -1,8 +1,6 @@
 const express = require('express');
-const path = require('path');
 const tryRes = require('../../util/TryResponse');
 const { authFinanceManager } = require('../../../src/controller/middleware/auth');
-const logger = require('../../util/Logger');
 
 const ticketService = require('../../service/TicketService');
 

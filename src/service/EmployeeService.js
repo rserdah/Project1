@@ -1,7 +1,7 @@
 const Service = require('./Service');
 const employeeDao = require('../repository/dao/EmployeeDAO');
 const logger = require('../util/Logger');
-const { SALT_ROUNDS, SECRET_KEY } = require('../repository/secrets');
+const { SALT_ROUNDS } = require('../repository/secrets');
 const bcrypt = require('bcrypt');
 
 class EmployeeService extends Service {
@@ -30,7 +30,6 @@ class EmployeeService extends Service {
         }
 
         // If password is undefined or is empty after trimming it
-        
         if(!employee.password || !employee.password.trim()) {
             logger.error('400 Employee must have a password.');
             throw new Error('400 Employee must have a password.');
@@ -59,11 +58,6 @@ class EmployeeService extends Service {
 
         return await employeeDao.getEmployeeByUsername(username);
     }
-// UPDATE
-
-
-// DELETE
-
 }
 
 module.exports = new EmployeeService();

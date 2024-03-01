@@ -4,7 +4,7 @@ const employeeService = require('../../service/EmployeeService');
 const Employee = require('../../repository/class/Employee');
 const tryRes = require('../../util/TryResponse');
 const logger = require('../../util/Logger');
-const { SALT_ROUNDS, SECRET_KEY } = require('../../repository/secrets');
+const { SECRET_KEY } = require('../../repository/secrets');
 
 
 async function register(req, res) {
