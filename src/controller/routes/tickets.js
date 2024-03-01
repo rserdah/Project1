@@ -57,7 +57,8 @@ router.post('/', async (req, res) => {
 
 router.put('/processing', authFinanceManager, async (req, res) => {
     await tryRes(res, async () => {
-        let resData = await ticketService.setTicketStatus(req.query.id, req.body.status);
+        console.log(req.user);
+        let resData = await ticketService.setTicketStatus(req.query.id, req.body.status, req.user.employeeId);
         res.json(resData);
     });
 });

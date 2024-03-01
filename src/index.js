@@ -12,5 +12,5 @@ app.use(express.json());
 bindRouters(app);
 app.listen(PORT, () => {
     logger.info('Server listening:', `http://localhost:${PORT}`);
-    ticketService.setQueueSize();
+    ticketService.setTicketQueue();
 });

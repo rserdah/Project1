@@ -10,7 +10,7 @@ class TicketDao extends Dao {
 
 // CREATE
     async createTicket(ticket) {
-        const newTicket = new Ticket({ amount: ticket.amount, author: ticket.author, description: ticket.description, queueIndex: ticket.queueIndex });
+        const newTicket = new Ticket({ amount: ticket.amount, author: ticket.author, description: ticket.description });
 
         const command = new PutCommand({
             TableName: this.tableName,
@@ -18,7 +18,11 @@ class TicketDao extends Dao {
         });
 
         // Doesn't return the items because PutCommand's return doesn't include the items, it just includes the request result
-        return await this.trySendCommand(command);
+        // return await this.trySendCommand(command);
+        
+        await this.trySendCommand(command);
+        
+        return newTicket;
     }
 
 // READ
@@ -52,7 +56,7 @@ class TicketDao extends Dao {
         return await this.trySendCommandItems(command);
     }
     
-    async getPendingTickets(author) {
+    async getPendingTickets() {
         const command = new ScanCommand({
             TableName: this.tableName,
             FilterExpression: "#status = :status",
@@ -63,15 +67,24 @@ class TicketDao extends Dao {
         return await this.trySendCommandItems(command);
     }
 // UPDATE
-    async setTicketStatus(ticketId, newStatus) {
+    async setTicketStatus(ticketId, newStatus, resolverEmployeeId) {
+        // const command = new UpdateCommand({
+        //     TableName: this.tableName,
+        //     Key: { "ticketId": ticketId },
+        //     UpdateExpression: "set #status = :newStatus",
+        //     ExpressionAttributeNames: {"#status": "status"},
+        //     ExpressionAttributeValues: {":newStatus": newStatus},
+        //     ReturnValues: "ALL_NEW",
+        // });
+
         const command = new UpdateCommand({
             TableName: this.tableName,
             Key: { "ticketId": ticketId },
-            UpdateExpression: "set #status = :newStatus",
-            ExpressionAttributeNames: {"#status": "status"},
-            ExpressionAttributeValues: {":newStatus": newStatus},
+            UpdateExpression: "set #status = :newStatus, #resolver = :newResolver",
+            ExpressionAttributeNames: {"#status": "status", "#resolver": "resolver"},
+            ExpressionAttributeValues: {":newStatus": newStatus, ":newResolver": resolverEmployeeId},
             ReturnValues: "ALL_NEW",
-          });
+        });
 
         return await this.trySendCommand(command);
     }

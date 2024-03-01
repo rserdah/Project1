@@ -28,7 +28,7 @@ async function authLogin(req, res) {
     }
     else {
         let payload = {
-            id: user.id,
+            employeeId: user.employeeId,
             username: user.username,
             role: user.role
         };
@@ -41,7 +41,7 @@ async function authLogin(req, res) {
         //generate JWT
         const token = jwt.sign(payload, SECRET_KEY, signOptions);
 
-        res.json({ message: `Signed in as ${username}`, token });
+        res.json({ message: `Signed in as ${username}`, token, user: payload });
     }
 }
 
@@ -63,7 +63,7 @@ function authRole(req, res, next, predicate) {
     jwt.verify(token, SECRET_KEY, (err, user) => {
         if(err || !user.role || !predicate(user.role)) {
             logger.info('403 Forbidden access');
-            res.status(403).json({ message: `Forbidden access for ${user.role} users` });
+            res.status(403).json({ message: `Forbidden access${ user ? ` for ${user.role} users` : '' }` });
             return;
         }
         else {

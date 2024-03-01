@@ -1,33 +1,25 @@
 const Service = require('./Service');
 const ticketDao = require('../repository/dao/TicketDAO');
 const logger = require('../util/Logger');
+const Ticket = require('../repository/class/Ticket');
 
 
 class TicketService extends Service {
-    static QUEUE_SIZE = 0;
-    static QUEUE_SIZE_SET = false;
+    static TicketQueue = [];
 
-    /** Set queue size on server start so newly added tickets can be placed in the right spot in queue */
-    async setQueueSize() {
+    async setTicketQueue() {
         if(!TicketService.QUEUE_SIZE_SET) {
-            let tickets = await this.getAllTickets();
+            let tickets = await ticketDao.getPendingTickets();
 
-            TicketService.QUEUE_SIZE = tickets.reduce((max, x) => {
-                let idx = Number(x.queueIndex);
+            TicketService.TicketQueue = tickets.toSorted((a, b) => a.submissionTime - b.submissionTime);
 
-                if(idx || idx === 0) {
-                    if(idx > max) {
-                        max = idx > max ? idx : max;
-                    }
-                }
-
-                return max;
-            }, 0);
-
-            logger.info(`Set ticket queue size to ${TicketService.QUEUE_SIZE}`);
-
-            TicketService.QUEUE_SIZE_SET = true;
+            logger.info('Set ticket queue');
         }
+    }
+
+    async popTicketFromQueue() {
+        // Since index 0 is treated as first in this ticket system, can't use Array.pop()
+        TicketService.TicketQueue = TicketService.TicketQueue.slice(1);
     }
 
 // CREATE
@@ -52,14 +44,13 @@ class TicketService extends Service {
             throw new Error('400 Ticket must have an author.');
         }
 
-        let ticket2 = JSON.parse(JSON.stringify(ticket));
+        logger.info(`Created ticket`);
 
-        // When adding ticket, make its index the next index in the queue and increase the queue size by one
-        ticket2['queueIndex'] = String(this.QUEUE_SIZE);
-        this.QUEUE_SIZE += 1;
+        let newTicket = await ticketDao.createTicket(ticket);
+        
+        await this.setTicketQueue();
 
-        logger.info(`Created ticket ${ticket2.queueIndex}`);
-        return await ticketDao.createTicket(ticket2);
+        return newTicket;
     }
 
 // READ
@@ -90,16 +81,11 @@ class TicketService extends Service {
 
     async getPendingTickets() {
         logger.info(`Retrieved pending tickets`);
-        let tickets = await ticketDao.getPendingTickets();
-
-        // Sort the tickets based on their queue index because they should be given priority based on their place in queue
-        tickets = tickets.toSorted((a, b) => a.queueIndex - b.queueIndex);
-
-        return tickets;
+        return TicketService.TicketQueue;
     }
 
 // UPDATE
-    async setTicketStatus(ticketId, newStatus) {
+    async setTicketStatus(ticketId, newStatus, resolverEmployeeId = -1) {
         if(!ticketId) {
             logger.error('400 Must have a ticket ID.');
             throw new Error('400 Must have a ticket ID.');
@@ -139,7 +125,11 @@ class TicketService extends Service {
         }
 
         logger.info(`200 Set ticket ${ticketId} status to ${newStatus}`);
-        return await ticketDao.setTicketStatus(ticketId, newStatus);
+        let result = await ticketDao.setTicketStatus(ticketId, newStatus, resolverEmployeeId);
+
+        await this.setTicketQueue();
+
+        return result;
     }
 
 // DELETE

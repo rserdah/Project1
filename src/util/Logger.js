@@ -16,7 +16,9 @@ const logger = createLogger({
 });
 
 process.on("uncaughtException", (error) => {
-  logger.error(`Uncaught Exception: ${error}`);
+  let location = '';
+  try { let ln = error.stack.split('at ')[1]; location = ln.slice(ln.lastIndexOf('\\') + 1); } catch (err) { }
+  logger.error(`Uncaught Exception: ${location} ${error}`);
   process.exit(1);
 });
 
